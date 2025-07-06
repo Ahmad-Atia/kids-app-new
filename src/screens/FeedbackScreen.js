@@ -10,7 +10,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { AppContext } from '../context/AppContext';
-import { EventService } from '../services/EventService';
+import EventService from '../services/EventService';
 
 export default function FeedbackScreen({ route, navigation }) {
   const { event } = route.params;
@@ -18,6 +18,28 @@ export default function FeedbackScreen({ route, navigation }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
+
+  console.log('[DEBUG] FeedbackScreen event:', event);
+  console.log('[DEBUG] FeedbackScreen event type:', typeof event);
+  console.log('[DEBUG] FeedbackScreen event properties:', event ? Object.keys(event) : 'null');
+
+  // Safety check for event object
+  if (!event) {
+    console.error('[ERROR] FeedbackScreen: No event provided');
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Error: Event not found</Text>
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.submitButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleSubmitFeedback = async () => {
     if (rating === 0) {
@@ -27,16 +49,22 @@ export default function FeedbackScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      await EventService.submitFeedback(event.id, {
+      const result = await EventService.addFeedback(event.id, {
         rating,
         comment,
-        userId: user.id,
+        content: comment, // Add content property as well
+        userID: user.id,  // Change to userID (capital D)
       });
       
-      Alert.alert('Success', 'Feedback submitted successfully', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      if (result.success) {
+        Alert.alert('Success', 'Feedback submitted successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } else {
+        Alert.alert('Error', result.error || 'Failed to submit feedback');
+      }
     } catch (error) {
+      console.error('Error submitting feedback:', error);
       Alert.alert('Error', 'Failed to submit feedback');
     } finally {
       setLoading(false);
@@ -67,7 +95,7 @@ export default function FeedbackScreen({ route, navigation }) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Rate Your Experience</Text>
-          <Text style={styles.eventTitle}>{event.title}</Text>
+          <Text style={styles.eventTitle}>{event.name || event.title || 'Event'}</Text>
         </View>
 
         <View style={styles.ratingSection}>

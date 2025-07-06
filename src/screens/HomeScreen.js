@@ -25,13 +25,18 @@ const HomeScreen = ({ navigation }) => {
   const loadEvents = async () => {
     try {
       const result = await EventService.getAllEvents();
+      console.log('[DEBUG] HomeScreen events loaded:', result);
       if (result.success) {
-        // Show only first 5 events on home screen
-        setEvents(result.events.slice(0, 5));
+        // Filter out any null/undefined events and show only first 5 events on home screen
+        const validEvents = result.events.filter(event => event != null).slice(0, 5);
+        console.log('[DEBUG] HomeScreen valid events:', validEvents.length);
+        setEvents(validEvents);
       } else {
+        console.error('[ERROR] HomeScreen failed to load events:', result.error);
         Alert.alert('Error', result.error || 'Failed to load events');
       }
     } catch (error) {
+      console.error('[ERROR] HomeScreen exception loading events:', error);
       Alert.alert('Error', 'Failed to load events');
     } finally {
       setLoading(false);
@@ -49,6 +54,8 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderEventCard = (event) => {
+    if (!event) return null;
+    
     const formattedEvent = EventService.formatEventForDisplay(event);
     
     return (
@@ -58,16 +65,16 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => handleEventPress(event)}
       >
         <View style={styles.eventHeader}>
-          <Text style={styles.eventTitle}>{event.name}</Text>
+          <Text style={styles.eventTitle}>{event.name || event.title || 'Untitled Event'}</Text>
           <Text style={styles.eventDate}>{formattedEvent.formattedDate}</Text>
         </View>
         <Text style={styles.eventDescription} numberOfLines={2}>
-          {event.description}
+          {event.description || 'No description available'}
         </Text>
         <View style={styles.eventFooter}>
           <View style={styles.eventInfo}>
             <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.eventLocation}>{event.location}</Text>
+            <Text style={styles.eventLocation}>{event.location || 'Location TBD'}</Text>
           </View>
           <View style={styles.eventInfo}>
             <Ionicons name="people-outline" size={16} color="#666" />

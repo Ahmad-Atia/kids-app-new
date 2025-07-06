@@ -30,11 +30,17 @@ const EventsScreen = ({ navigation }) => {
     if (searchQuery.trim() === '') {
       setFilteredEvents(events);
     } else {
-      const filtered = events.filter(event =>
-        event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const filtered = events.filter(event => {
+        if (!event) return false;
+        
+        const name = event.name || event.title || '';
+        const description = event.description || '';
+        const location = event.location || '';
+        
+        return name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               location.toLowerCase().includes(searchQuery.toLowerCase());
+      });
       setFilteredEvents(filtered);
     }
   }, [searchQuery, events]);
@@ -42,13 +48,19 @@ const EventsScreen = ({ navigation }) => {
   const loadEvents = async () => {
     try {
       const result = await EventService.getAllEvents();
+      console.log('[DEBUG] Events loaded:', result);
       if (result.success) {
-        setEvents(result.events);
-        setFilteredEvents(result.events);
+        // Filter out any null/undefined events
+        const validEvents = result.events.filter(event => event != null);
+        console.log('[DEBUG] Valid events:', validEvents.length, 'out of', result.events.length);
+        setEvents(validEvents);
+        setFilteredEvents(validEvents);
       } else {
+        console.error('[ERROR] Failed to load events:', result.error);
         Alert.alert('Error', result.error || 'Failed to load events');
       }
     } catch (error) {
+      console.error('[ERROR] Exception loading events:', error);
       Alert.alert('Error', 'Failed to load events');
     } finally {
       setLoading(false);
@@ -85,6 +97,8 @@ const EventsScreen = ({ navigation }) => {
   };
 
   const renderEventCard = (event) => {
+    if (!event) return null;
+    
     const formattedEvent = EventService.formatEventForDisplay(event);
     const isParticipating = user && !user.guest && EventService.isUserParticipating(event, user.id);
     
@@ -95,16 +109,16 @@ const EventsScreen = ({ navigation }) => {
         onPress={() => handleEventPress(event)}
       >
         <View style={styles.eventHeader}>
-          <Text style={styles.eventTitle}>{event.name}</Text>
+          <Text style={styles.eventTitle}>{event.name || event.title || 'Untitled Event'}</Text>
           <View style={styles.eventStatus}>
             <Text style={[styles.statusText, { color: event.status === 'PLANNED' ? '#007AFF' : '#28a745' }]}>
-              {event.status}
+              {event.status || 'Unknown'}
             </Text>
           </View>
         </View>
         
         <Text style={styles.eventDescription} numberOfLines={2}>
-          {event.description}
+          {event.description || 'No description available'}
         </Text>
         
         <View style={styles.eventDetails}>
@@ -117,7 +131,7 @@ const EventsScreen = ({ navigation }) => {
           
           <View style={styles.detailItem}>
             <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{event.location}</Text>
+            <Text style={styles.detailText}>{event.location || 'Location TBD'}</Text>
           </View>
           
           <View style={styles.detailItem}>

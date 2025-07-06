@@ -8,7 +8,12 @@ class EventService {
   async getAllEvents() {
     try {
       const events = await this.apiService.getAllEvents();
-      return { success: true, events };
+      console.log('[DEBUG] Events from API:', events);
+      
+      // Ensure we return an array
+      const eventsArray = Array.isArray(events) ? events : [];
+      
+      return { success: true, events: eventsArray };
     } catch (error) {
       console.error('Failed to get events:', error);
       return { success: false, error: error.message };
@@ -90,10 +95,21 @@ class EventService {
 
   // Helper method to format event data for display
   formatEventForDisplay(event) {
+    if (!event) {
+      return {
+        formattedDate: 'Date unknown',
+        formattedTime: 'Time unknown',
+        participantCount: 0,
+        feedbackCount: 0
+      };
+    }
+    
+    const eventDate = event.date ? new Date(event.date) : null;
+    
     return {
       ...event,
-      formattedDate: new Date(event.date).toLocaleDateString(),
-      formattedTime: new Date(event.date).toLocaleTimeString(),
+      formattedDate: eventDate ? eventDate.toLocaleDateString() : 'Date unknown',
+      formattedTime: eventDate ? eventDate.toLocaleTimeString() : 'Time unknown',
       participantCount: event.participants ? event.participants.length : 0,
       feedbackCount: event.feedbacks ? event.feedbacks.length : 0
     };
@@ -101,7 +117,7 @@ class EventService {
 
   // Helper method to check if user is participating
   isUserParticipating(event, userId) {
-    return event.participants && event.participants.some(p => p.userId === userId);
+    return event && event.participants && event.participants.some(p => p.userId === userId);
   }
 }
 

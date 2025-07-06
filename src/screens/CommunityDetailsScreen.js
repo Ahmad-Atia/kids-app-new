@@ -137,11 +137,11 @@ export default function CommunityDetailsScreen({ route, navigation }) {
                 style={styles.eventCard}
                 onPress={() => handleEventPress(event)}
               >
-                <Text style={styles.eventTitle}>{event.title}</Text>
+                <Text style={styles.eventTitle}>{event.name || event.title || 'Untitled Event'}</Text>
                 <Text style={styles.eventDate}>
-                  {new Date(event.date).toLocaleDateString()}
+                  {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD'}
                 </Text>
-                <Text style={styles.eventLocation}>{event.location}</Text>
+                <Text style={styles.eventLocation}>{event.location || 'Location TBD'}</Text>
                 <Text style={styles.eventParticipants}>
                   {event.participants?.length || 0} participants
                 </Text>

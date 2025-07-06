@@ -53,7 +53,12 @@ class ApiService {
       const contentType = response.headers.get('content-type');
       
       if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
+        const text = await response.text();
+        if (text.trim()) {
+          responseData = JSON.parse(text);
+        } else {
+          responseData = {}; // Handle empty response
+        }
       } else {
         responseData = await response.text();
       }
@@ -159,33 +164,60 @@ class ApiService {
     });
   }
 
-  // Community methods
-  async getAllCommunities() {
-    return this.request('/community/communities');
+  // Community methods - Updated to work with actual backend endpoints
+  async getAllPosts() {
+    return this.request('/community/posts');
   }
 
-  async getCommunity(communityId) {
-    return this.request(`/community/communities/${communityId}`);
-  }
-
-  async createCommunity(communityData) {
-    return this.request('/community/communities', {
+  async createPost(postData) {
+    return this.request('/community/posts', {
       method: 'POST',
-      body: communityData
+      body: postData
     });
   }
 
-  async joinCommunity(communityId, userId) {
-    return this.request(`/community/communities/${communityId}/join`, {
-      method: 'POST',
-      body: { userId }
+  async getPost(postId) {
+    return this.request(`/community/posts/${postId}`);
+  }
+
+  async likePost(postId, userId) {
+    return this.request(`/community/posts/${postId}/like?userId=${userId}`, {
+      method: 'POST'
     });
   }
 
-  async leaveCommunity(communityId, userId) {
-    return this.request(`/community/communities/${communityId}/leave`, {
+  async sharePost(postId, userId) {
+    return this.request(`/community/posts/${postId}/share?userId=${userId}`, {
+      method: 'POST'
+    });
+  }
+
+  async getAllPolls() {
+    return this.request('/community/polls');
+  }
+
+  async createPoll(pollData) {
+    return this.request('/community/polls', {
       method: 'POST',
-      body: { userId }
+      body: pollData
+    });
+  }
+
+  async voteOnPoll(pollId, voteData) {
+    return this.request(`/community/polls/${pollId}/vote`, {
+      method: 'POST',
+      body: voteData
+    });
+  }
+
+  async getComments(targetId) {
+    return this.request(`/community/comments/${targetId}`);
+  }
+
+  async addComment(targetId, commentData) {
+    return this.request(`/community/comments/${targetId}`, {
+      method: 'POST',
+      body: commentData
     });
   }
 

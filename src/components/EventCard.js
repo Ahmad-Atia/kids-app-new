@@ -3,22 +3,38 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Card from './Card';
 
 export default function EventCard({ event, onPress, showJoinButton = false, onJoin }) {
+  // Safety check for undefined event
+  if (!event) {
+    console.warn('EventCard received undefined event prop');
+    return null;
+  }
+
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    if (!dateString) return 'Date TBD';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch (error) {
+      return 'Date TBD';
+    }
   };
 
   const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (!dateString) return 'Time TBD';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (error) {
+      return 'Time TBD';
+    }
   };
 
   const getStatusColor = (status) => {
@@ -44,7 +60,7 @@ export default function EventCard({ event, onPress, showJoinButton = false, onJo
     <Card onPress={onPress} style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={2}>
-          {event.title}
+          {event.name || event.title}
         </Text>
         {event.status && (
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(event.status) }]}>
@@ -54,7 +70,7 @@ export default function EventCard({ event, onPress, showJoinButton = false, onJo
       </View>
 
       <Text style={styles.description} numberOfLines={3}>
-        {event.description}
+        {event.description || 'No description available'}
       </Text>
 
       <View style={styles.details}>
@@ -68,7 +84,7 @@ export default function EventCard({ event, onPress, showJoinButton = false, onJo
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>📍</Text>
           <Text style={styles.detailText} numberOfLines={1}>
-            {event.location}
+            {event.location || 'Location TBD'}
           </Text>
         </View>
 

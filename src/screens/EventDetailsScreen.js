@@ -74,9 +74,14 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
   const handleShare = async () => {
     try {
+      const eventName = event.name || event.title || 'Untitled Event';
+      const eventDescription = event.description || 'No description available';
+      const eventDate = event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD';
+      const eventLocation = event.location || 'Location TBD';
+      
       const result = await Share.share({
-        message: `Check out this event: ${event.name}\n\n${event.description}\n\nDate: ${new Date(event.date).toLocaleDateString()}\nLocation: ${event.location}`,
-        title: event.name,
+        message: `Check out this event: ${eventName}\n\n${eventDescription}\n\nDate: ${eventDate}\nLocation: ${eventLocation}`,
+        title: eventName,
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to share event');
@@ -92,7 +97,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
       Alert.alert('Login Required', 'Please login to add feedback');
       return;
     }
-    navigation.navigate('Feedback', { eventId });
+    navigation.navigate('Feedback', { event });
   };
 
   if (loading) {
@@ -134,11 +139,11 @@ const EventDetailsScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         
-        <Text style={styles.title}>{event.name}</Text>
+        <Text style={styles.title}>{event.name || event.title || 'Untitled Event'}</Text>
         
         <View style={styles.statusContainer}>
           <Text style={[styles.status, { color: event.status === 'PLANNED' ? '#007AFF' : '#28a745' }]}>
-            {event.status}
+            {event.status || 'Unknown'}
           </Text>
           {event.isPublic && (
             <View style={styles.publicBadge}>
@@ -152,7 +157,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
       <View style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.description}>{event.description}</Text>
+          <Text style={styles.description}>{event.description || 'No description available'}</Text>
         </View>
 
         <View style={styles.section}>
@@ -172,7 +177,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <Ionicons name="location-outline" size={20} color="#666" />
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Location</Text>
-              <Text style={styles.detailValue}>{event.location}</Text>
+              <Text style={styles.detailValue}>{event.location || 'Location TBD'}</Text>
             </View>
           </View>
 
