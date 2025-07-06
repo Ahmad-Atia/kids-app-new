@@ -190,13 +190,6 @@ const EventsScreen = ({ navigation }) => {
             onChangeText={setSearchQuery}
           />
         </View>
-        
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => navigation.navigate('CreateEvent')}
-        >
-          <Ionicons name="add" size={24} color="#fff" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -212,12 +205,9 @@ const EventsScreen = ({ navigation }) => {
               {searchQuery ? 'No events found' : 'No events available'}
             </Text>
             {!searchQuery && (
-              <TouchableOpacity
-                style={styles.createEventButton}
-                onPress={() => navigation.navigate('CreateEvent')}
-              >
-                <Text style={styles.createEventButtonText}>Create First Event</Text>
-              </TouchableOpacity>
+              <Text style={styles.emptySubtext}>
+                New events will appear here when they're created by administrators.
+              </Text>
             )}
           </View>
         ) : (
@@ -268,14 +258,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingLeft: 10,
     fontSize: 16,
-  },
-  createButton: {
-    backgroundColor: '#007AFF',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   scrollView: {
     flex: 1,
@@ -380,17 +362,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  createEventButton: {
-    backgroundColor: '#007AFF',
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  createEventButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
 });
 

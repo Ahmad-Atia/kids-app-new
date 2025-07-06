@@ -10,7 +10,6 @@ import EventsScreen from '../screens/EventsScreen';
 import EventDetailsScreen from '../screens/EventDetailsScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import CreateEventScreen from '../screens/CreateEventScreen';
 import MapScreen from '../screens/MapScreen';
 import FeedbackScreen from '../screens/FeedbackScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
@@ -118,11 +117,6 @@ const AppNavigator = () => {
               name="EventDetails"
               component={EventDetailsScreen}
               options={{ title: 'Event Details' }}
-            />
-            <Stack.Screen
-              name="CreateEvent"
-              component={CreateEventScreen}
-              options={{ title: 'Create Event' }}
             />
             <Stack.Screen
               name="Map"

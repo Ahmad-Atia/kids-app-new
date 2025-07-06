@@ -120,14 +120,6 @@ const HomeScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate('CreateEvent')}
-        >
-          <Ionicons name="add-circle" size={24} color="#007AFF" />
-          <Text style={styles.actionText}>Create Event</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionButton}
           onPress={() => navigation.navigate('Community')}
         >
           <Ionicons name="people" size={24} color="#007AFF" />
@@ -147,12 +139,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.emptyState}>
             <Ionicons name="calendar-outline" size={48} color="#ccc" />
             <Text style={styles.emptyText}>No events available</Text>
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={() => navigation.navigate('CreateEvent')}
-            >
-              <Text style={styles.createButtonText}>Create First Event</Text>
-            </TouchableOpacity>
+            <Text style={styles.emptySubtext}>Check back later for new events!</Text>
           </View>
         ) : (
           events.map(renderEventCard)
@@ -284,17 +271,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  createButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  createButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
   },
 });
 
