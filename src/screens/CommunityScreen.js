@@ -106,8 +106,10 @@ const CommunityScreen = ({ navigation }) => {
     try {
       const voteData = {
         userID: user.id,
-        selectedOption: selectedOption
+        option: selectedOption
       };
+      
+      console.log('Voting on poll with data:', voteData);
       const result = await CommunityService.voteOnPoll(poll.pollID, voteData);
       if (result.success) {
         loadContent(); // Refresh to show updated votes
@@ -115,6 +117,7 @@ const CommunityScreen = ({ navigation }) => {
         Alert.alert('Error', result.error || 'Failed to vote');
       }
     } catch (error) {
+      console.error('Error voting on poll:', error);
       Alert.alert('Error', 'Failed to vote');
     }
   };
@@ -170,11 +173,10 @@ const CommunityScreen = ({ navigation }) => {
       const pollData = {
         authorID: user.id,
         question: pollQuestion.trim(),
-        options: validOptions.reduce((acc, option) => {
-          acc[option.trim()] = 0;
-          return acc;
-        }, {})
+        options: validOptions.map(option => option.trim())
       };
+      
+      console.log('Creating poll with data:', pollData);
       const result = await CommunityService.createPoll(pollData);
       if (result.success) {
         Alert.alert('Success', 'Poll created successfully!');
@@ -186,6 +188,7 @@ const CommunityScreen = ({ navigation }) => {
         Alert.alert('Error', result.error || 'Failed to create poll');
       }
     } catch (error) {
+      console.error('Error creating poll:', error);
       Alert.alert('Error', 'Failed to create poll');
     }
   };
@@ -231,6 +234,10 @@ const CommunityScreen = ({ navigation }) => {
   };
 
   const renderPoll = (poll) => {
+    if (!poll || !poll.pollID) {
+      return null;
+    }
+
     const formattedPoll = CommunityService.formatPollForDisplay(poll);
     const totalVotes = formattedPoll.totalVotes;
     
@@ -309,17 +316,18 @@ const CommunityScreen = ({ navigation }) => {
                 maxLength={500}
               />
               {pollOptions.map((option, index) => (
-                <TextInput
-                  key={index}
-                  style={styles.textInput}
-                  placeholder={`Option ${index + 1}`}
-                  value={option}
-                  onChangeText={(text) => {
-                    const newOptions = [...pollOptions];
-                    newOptions[index] = text;
-                    setPollOptions(newOptions);
-                  }}
-                />
+                <View key={index} style={styles.optionContainer}>
+                  <TextInput
+                    style={[styles.textInput, styles.optionInput]}
+                    placeholder={`Option ${index + 1}`}
+                    value={option}
+                    onChangeText={(text) => {
+                      const newOptions = [...pollOptions];
+                      newOptions[index] = text;
+                      setPollOptions(newOptions);
+                    }}
+                  />
+                </View>
               ))}
               <TouchableOpacity
                 style={styles.addOptionButton}
@@ -680,6 +688,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     minHeight: 100,
     textAlignVertical: 'top',
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  optionInput: {
+    flex: 1,
+    marginBottom: 0,
+    marginRight: 10,
+    minHeight: 40,
+  },
+  removeOptionButton: {
+    padding: 5,
   },
   addOptionButton: {
     alignItems: 'center',

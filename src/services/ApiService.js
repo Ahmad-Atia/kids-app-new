@@ -144,9 +144,8 @@ class ApiService {
   }
 
   async participateInEvent(eventId, userId) {
-    return this.request(`/events/events/${eventId}/participants`, {
-      method: 'POST',
-      body: { userId }
+    return this.request(`/events/events/${eventId}/participants?userId=${userId}`, {
+      method: 'POST'
     });
   }
 
@@ -197,6 +196,7 @@ class ApiService {
   }
 
   async createPoll(pollData) {
+    console.log('ApiService: Creating poll with data:', pollData);
     return this.request('/community/polls', {
       method: 'POST',
       body: pollData
@@ -204,6 +204,7 @@ class ApiService {
   }
 
   async voteOnPoll(pollId, voteData) {
+    console.log('ApiService: Voting on poll', pollId, 'with data:', voteData);
     return this.request(`/community/polls/${pollId}/vote`, {
       method: 'POST',
       body: voteData

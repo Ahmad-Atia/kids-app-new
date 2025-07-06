@@ -69,20 +69,24 @@ class CommunityService {
 
   async createPoll(pollData) {
     try {
+      console.log('CommunityService: Creating poll with data:', pollData);
       const poll = await this.apiService.createPoll(pollData);
+      console.log('CommunityService: Poll created successfully:', poll);
       return { success: true, poll };
     } catch (error) {
-      console.error('Failed to create poll:', error);
+      console.error('CommunityService: Failed to create poll:', error);
       return { success: false, error: error.message };
     }
   }
 
   async voteOnPoll(pollId, voteData) {
     try {
+      console.log('CommunityService: Voting on poll', pollId, 'with data:', voteData);
       const result = await this.apiService.voteOnPoll(pollId, voteData);
+      console.log('CommunityService: Vote successful:', result);
       return { success: true, result };
     } catch (error) {
-      console.error(`Failed to vote on poll ${pollId}:`, error);
+      console.error('CommunityService: Failed to vote on poll', pollId, ':', error);
       return { success: false, error: error.message };
     }
   }
