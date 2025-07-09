@@ -8,7 +8,7 @@ class EventService {
   async getAllEvents() {
     try {
       const events = await this.apiService.getAllEvents();
-      console.log('[DEBUG] Events from API:', events);
+      
       
       // Ensure we return an array
       const eventsArray = Array.isArray(events) ? events : [];
@@ -34,7 +34,7 @@ class EventService {
     try {
       console.log('[DEBUG] Creating event with data:', JSON.stringify(eventData, null, 2));
       const event = await this.apiService.createEvent(eventData);
-      console.log('[DEBUG] Event created successfully:', event);
+     
       return { success: true, event };
     } catch (error) {
       console.error('[ERROR] Failed to create event:', error);

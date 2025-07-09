@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import EventService from '../services/EventService';
+import WebSocketStatus from '../components/WebSocketStatus';
 
 const HomeScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
@@ -25,7 +26,6 @@ const HomeScreen = ({ navigation }) => {
   const loadEvents = async () => {
     try {
       const result = await EventService.getAllEvents();
-      console.log('[DEBUG] HomeScreen events loaded:', result);
       if (result.success) {
         // Filter out any null/undefined events and show only first 5 events on home screen
         const validEvents = result.events.filter(event => event != null).slice(0, 5);
@@ -103,10 +103,17 @@ const HomeScreen = ({ navigation }) => {
       }
     >
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>
-          Welcome{user?.name ? `, ${user.name}` : ''}!
-        </Text>
-        <Text style={styles.subtitle}>Discover amazing events for kids</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.welcomeText}>
+              Welcome{user?.name ? `, ${user.name}` : ''}!
+            </Text>
+            <Text style={styles.subtitle}>Discover amazing events for kids</Text>
+          </View>
+          <WebSocketStatus 
+            onPress={() => navigation.navigate('Notifications')}
+          />
+        </View>
       </View>
 
       <View style={styles.quickActions}>
@@ -125,6 +132,41 @@ const HomeScreen = ({ navigation }) => {
           <Ionicons name="people" size={24} color="#007AFF" />
           <Text style={styles.actionText}>Community</Text>
         </TouchableOpacity>
+        
+        {/* Debug WebSocket Button - Only in development */}
+        {__DEV__ && (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#f0f0f0', borderRadius: 8 }]}
+            onPress={() => {
+              // Import WebSocketService dynamically for testing
+              import('../services/WebSocketService').then(({ default: WebSocketService }) => {
+                console.log('🔧 Starting WebSocket Debug Tests...');
+                
+                // Test 1: Connection status
+                WebSocketService.debugWebSocketConnection();
+                
+                // Test 2: Message reception test (30 seconds)
+                setTimeout(() => {
+                  WebSocketService.testMessageReception();
+                }, 2000);
+                
+                // Test 3: Simulate API Gateway message
+                setTimeout(() => {
+                  WebSocketService.simulateAPIGatewayMessage();
+                }, 5000);
+                
+                Alert.alert(
+                  'WebSocket Debug', 
+                  'Check console for debug output:\n\n1. Connection status\n2. 30-second message test\n3. Simulated message test'
+                );
+              });
+            }}
+          >
+            <Ionicons name="bug" size={20} color="#FF6B35" />
+            <Text style={[styles.actionText, { color: '#FF6B35', fontSize: 10 }]}>Test WS</Text>
+          </TouchableOpacity>
+        )}
+
       </View>
 
       <View style={styles.section}>
@@ -168,6 +210,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
     padding: 20,
     paddingTop: 40,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   welcomeText: {
     fontSize: 24,

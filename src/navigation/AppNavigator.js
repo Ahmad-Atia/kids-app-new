@@ -16,6 +16,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import CommunityDetailsScreen from '../screens/CommunityDetailsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import HelpScreen from '../screens/HelpScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 
 // Import context
 import { useApp } from '../context/AppContext';
@@ -37,6 +38,8 @@ const MainTabNavigator = () => {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Community') {
             iconName = focused ? 'people' : 'people-outline';
+          } else if (route.name === 'Notifications') {
+            iconName = focused ? 'notifications' : 'notifications-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -68,6 +71,11 @@ const MainTabNavigator = () => {
         name="Community" 
         component={CommunityScreen} 
         options={{ title: 'Community' }}
+      />
+      <Tab.Screen 
+        name="Notifications" 
+        component={NotificationScreen} 
+        options={{ title: 'Nachrichten' }}
       />
       <Tab.Screen 
         name="Profile" 

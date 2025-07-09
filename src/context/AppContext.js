@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import AuthService from '../services/AuthService';
+import WebSocketService from '../services/WebSocketService';
+import Config from '../config/Config';
 
 // Create the context
 const AppContext = createContext();
@@ -13,6 +15,9 @@ const initialState = {
   events: [],
   communities: [],
   authToken: null,
+  // WebSocket state
+  webSocketConnected: false,
+  webSocketUrl: Config.getWebSocketUrl(),
 };
 
 // Action types
@@ -25,6 +30,9 @@ const ACTION_TYPES = {
   SET_EVENTS: 'SET_EVENTS',
   SET_COMMUNITIES: 'SET_COMMUNITIES',
   CLEAR_ERROR: 'CLEAR_ERROR',
+  // WebSocket actions
+  SET_WEBSOCKET_CONNECTED: 'SET_WEBSOCKET_CONNECTED',
+  SET_WEBSOCKET_URL: 'SET_WEBSOCKET_URL',
 };
 
 // Reducer
@@ -64,6 +72,12 @@ const appReducer = (state, action) => {
     
     case ACTION_TYPES.CLEAR_ERROR:
       return { ...state, error: null };
+    
+    case ACTION_TYPES.SET_WEBSOCKET_CONNECTED:
+      return { ...state, webSocketConnected: action.payload };
+    
+    case ACTION_TYPES.SET_WEBSOCKET_URL:
+      return { ...state, webSocketUrl: action.payload };
     
     default:
       return state;
@@ -112,6 +126,24 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: ACTION_TYPES.CLEAR_ERROR });
   };
 
+  // WebSocket actions
+  const setWebSocketConnected = (connected) => {
+    dispatch({ type: ACTION_TYPES.SET_WEBSOCKET_CONNECTED, payload: connected });
+  };
+
+  const setWebSocketUrl = (url) => {
+    dispatch({ type: ACTION_TYPES.SET_WEBSOCKET_URL, payload: url });
+  };
+
+  const connectWebSocket = () => {
+    WebSocketService.connect(state.webSocketUrl);
+  };
+
+  const disconnectWebSocket = () => {
+    WebSocketService.disconnect();
+    setWebSocketConnected(false);
+  };
+
   // Initialize auth state on app start
   useEffect(() => {
     const initializeAuth = async () => {
@@ -133,6 +165,29 @@ export const AppProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
+  // Auto-connect WebSocket when user is authenticated
+  useEffect(() => {
+    if (state.isAuthenticated) {
+      console.log('User authenticated, connecting to WebSocket...');
+      connectWebSocket();
+      
+      // Check connection status periodically
+      const statusInterval = setInterval(() => {
+        const connected = WebSocketService.getConnectionStatus();
+        if (connected !== state.webSocketConnected) {
+          setWebSocketConnected(connected);
+        }
+      }, 2000);
+
+      return () => {
+        clearInterval(statusInterval);
+      };
+    } else {
+      // Disconnect when user logs out
+      disconnectWebSocket();
+    }
+  }, [state.isAuthenticated, state.webSocketUrl]);
+
   // Context value
   const value = {
     // State
@@ -147,6 +202,12 @@ export const AppProvider = ({ children }) => {
     setEvents,
     setCommunities,
     clearError,
+    
+    // WebSocket actions
+    setWebSocketConnected,
+    setWebSocketUrl,
+    connectWebSocket,
+    disconnectWebSocket,
   };
 
   return (

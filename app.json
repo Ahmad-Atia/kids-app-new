@@ -30,6 +30,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "API_BASE_URL": "http://192.168.178.63:3000",
+      "WEBSOCKET_URL": "ws://192.168.178.63:3000/ws/events",
+      "BROKER_URL": "ws://192.168.178.38:9001",
+      "DEV_API_BASE_URL": "http://localhost:3000",
+      "DEV_WEBSOCKET_URL": "ws://localhost:3000/ws/events"
     }
   }
 }
