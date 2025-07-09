@@ -132,8 +132,13 @@ const NotificationScreen = ({ navigation }) => {
           <Text style={[styles.notificationTitle, !item.read && styles.unreadTitle]}>
             {item.title}
           </Text>
+          {item.subtitle && (
+            <Text style={styles.notificationSubtitle}>
+              📅 {item.subtitle}
+            </Text>
+          )}
           <Text style={styles.notificationMessage} numberOfLines={2}>
-            {item.message}
+            📍 {item.message}
           </Text>
           <Text style={styles.notificationTime}>
             {formatTimestamp(item.timestamp)}
@@ -170,6 +175,17 @@ const NotificationScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           )}
+          
+          {/* Debug: Test Event Message Button */}
+          <TouchableOpacity 
+            style={styles.testButton} 
+            onPress={() => {
+              const testMessage = "MQTT_EVENT|events/created|EVENT_CREATED|ab9e689c-70d3-4936-b310-d7ee490aa86c|Summer Coding Workshop 2|2025-08-15T10:00|TechHub Berlin, Hauptstraße 123|false|1752062217678|1752062217681";
+              WebSocketService.handleMessage(testMessage);
+            }}
+          >
+            <Text style={styles.testButtonText}>🧪 Test Event Message</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Notifications List */}
@@ -251,6 +267,19 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: '600',
   },
+  testButton: {
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#34C759',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+  },
+  testButtonText: {
+    fontSize: 12,
+    color: '#FFF',
+    fontWeight: '600',
+  },
   listContainer: {
     paddingHorizontal: 20,
     paddingTop: 15,
@@ -303,6 +332,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1C1C1E',
+    marginBottom: 4,
+  },
+  notificationSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#007AFF',
     marginBottom: 4,
   },
   unreadTitle: {

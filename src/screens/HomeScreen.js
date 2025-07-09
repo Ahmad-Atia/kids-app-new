@@ -6,21 +6,42 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  RefreshControl
+  RefreshControl,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import EventService from '../services/EventService';
-import WebSocketStatus from '../components/WebSocketStatus';
+import WebSocketService from '../services/WebSocketService';
+import { colors, typography, spacing, borderRadius, shadows, cardStyles, buttonStyles } from '../config/Theme';
 
 const HomeScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const { user } = useApp();
 
   useEffect(() => {
     loadEvents();
+    
+    // Listen for new notifications to update the count
+    const handleNewNotification = () => {
+      const notifications = WebSocketService.getNotifications();
+      const unreadCount = notifications.filter(n => !n.read).length;
+      setNotificationCount(unreadCount);
+    };
+
+    // Initial count
+    handleNewNotification();
+
+    // Add listener
+    WebSocketService.addNotificationListener(handleNewNotification);
+
+    // Cleanup
+    return () => {
+      WebSocketService.removeNotificationListener(handleNewNotification);
+    };
   }, []);
 
   const loadEvents = async () => {
@@ -102,73 +123,36 @@ const HomeScreen = ({ navigation }) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.welcomeText}>
-              Welcome{user?.name ? `, ${user.name}` : ''}!
-            </Text>
-            <Text style={styles.subtitle}>Discover amazing events for kids</Text>
-          </View>
-          <WebSocketStatus 
-            onPress={() => navigation.navigate('Notifications')}
-          />
-        </View>
-      </View>
+    
 
+      {/* Quick Actions */}
       <View style={styles.quickActions}>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => navigation.navigate('Events')}
         >
-          <Ionicons name="calendar" size={24} color="#007AFF" />
+          <Ionicons name="list" size={24} color={colors.primary} />
           <Text style={styles.actionText}>Browse Events</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('Calendar')}
+        >
+          <Ionicons name="calendar" size={24} color={colors.primary} />
+          <Text style={styles.actionText}>Calendar View</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => navigation.navigate('Community')}
         >
-          <Ionicons name="people" size={24} color="#007AFF" />
+          <Ionicons name="people" size={24} color={colors.primary} />
           <Text style={styles.actionText}>Community</Text>
         </TouchableOpacity>
-        
-        {/* Debug WebSocket Button - Only in development */}
-        {__DEV__ && (
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#f0f0f0', borderRadius: 8 }]}
-            onPress={() => {
-              // Import WebSocketService dynamically for testing
-              import('../services/WebSocketService').then(({ default: WebSocketService }) => {
-                console.log('🔧 Starting WebSocket Debug Tests...');
-                
-                // Test 1: Connection status
-                WebSocketService.debugWebSocketConnection();
-                
-                // Test 2: Message reception test (30 seconds)
-                setTimeout(() => {
-                  WebSocketService.testMessageReception();
-                }, 2000);
-                
-                // Test 3: Simulate API Gateway message
-                setTimeout(() => {
-                  WebSocketService.simulateAPIGatewayMessage();
-                }, 5000);
-                
-                Alert.alert(
-                  'WebSocket Debug', 
-                  'Check console for debug output:\n\n1. Connection status\n2. 30-second message test\n3. Simulated message test'
-                );
-              });
-            }}
-          >
-            <Ionicons name="bug" size={20} color="#FF6B35" />
-            <Text style={[styles.actionText, { color: '#FF6B35', fontSize: 10 }]}>Test WS</Text>
-          </TouchableOpacity>
-        )}
-
       </View>
 
+     
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Events</Text>
@@ -215,17 +199,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginBottom: 15,
   },
-  welcomeText: {
-    fontSize: 24,
+  logoSection: {
+    flex: 1,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  appTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 5,
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    opacity: 0.9,
   },
   subtitle: {
     fontSize: 16,
     color: '#fff',
     opacity: 0.8,
+  },
+  notificationButton: {
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginLeft: 10,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  notificationBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   quickActions: {
     flexDirection: 'row',
@@ -323,6 +350,27 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     color: '#999',
+    textAlign: 'center',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 20,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+  },
+  actionButton: {
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  actionText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#007AFF',
+    fontWeight: '500',
     textAlign: 'center',
   },
 });

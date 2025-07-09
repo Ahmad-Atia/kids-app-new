@@ -106,43 +106,84 @@ class WebSocketService {
       if (messageType === 'MQTT_EVENT') {
         console.log('🔥 MQTT_EVENT MESSAGE DETECTED!');
         const topic = parts[1];
-        const payload = parts[2];
-        const timestamp = parts[3];
+        const eventType = parts[2];
         
         console.log('🔥 MQTT MESSAGE RECEIVED FROM API GATEWAY:');
         console.log('   Topic:', topic);
-        console.log('   Payload:', payload);
-        console.log('   Timestamp:', timestamp);
+        console.log('   Event Type:', eventType);
         console.log('   Full message:', data);
         console.log('   Received at:', new Date().toISOString());
         console.log('   Message parts count:', parts.length);
         
-        // Additional parsing and validation logging
-        try {
-          // Try to parse payload as JSON if it looks like JSON
-          if (payload && payload.startsWith('{') && payload.endsWith('}')) {
-            const parsedPayload = JSON.parse(payload);
-            console.log('   Parsed JSON payload:', parsedPayload);
+        let notification;
+        
+        // Handle EVENT_CREATED messages specially
+        if (eventType === 'EVENT_CREATED' && parts.length >= 9) {
+          const eventId = parts[3];
+          const eventTitle = parts[4];
+          const eventDateTime = parts[5];
+          const eventLocation = parts[6];
+          const isPrivate = parts[7] === 'true';
+          
+          console.log('📅 EVENT_CREATED Message Parsed:');
+          console.log('   Event ID:', eventId);
+          console.log('   Title:', eventTitle);
+          console.log('   Date/Time:', eventDateTime);
+          console.log('   Location:', eventLocation);
+          console.log('   Is Private:', isPrivate);
+          
+          // Format the date for display
+          let formattedDate = eventDateTime;
+          try {
+            const eventDate = new Date(eventDateTime);
+            formattedDate = eventDate.toLocaleDateString('de-DE', {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          } catch (e) {
+            console.log('   Could not parse date, using raw format');
           }
-        } catch (e) {
-          console.log('   Payload is not JSON (this is normal for simple text messages)');
+          
+          notification = {
+            id: eventId || Date.now().toString(),
+            title: eventTitle || 'Neues Event',
+            message: eventLocation || 'Event erstellt',
+            subtitle: formattedDate,
+            type: 'event',
+            timestamp: new Date(),
+            read: false,
+            icon: 'calendar',
+            eventData: {
+              id: eventId,
+              title: eventTitle,
+              dateTime: eventDateTime,
+              location: eventLocation,
+              isPrivate: isPrivate
+            }
+          };
+        } else {
+          // Handle other MQTT messages
+          const payload = parts[2];
+          const timestamp = parts[3];
+          
+          console.log('   Topic:', topic);
+          console.log('   Payload:', payload);
+          console.log('   Timestamp:', timestamp);
+          
+          notification = {
+            id: Date.now().toString(),
+            title: `MQTT: ${topic}`,
+            message: payload || 'MQTT Nachricht erhalten',
+            type: 'mqtt',
+            timestamp: new Date(),
+            read: false,
+            icon: 'radio'
+          };
         }
-        
-        // Log topic analysis
-        const topicParts = topic ? topic.split('/') : [];
-        console.log('   Topic segments:', topicParts);
-        console.log('   Topic depth:', topicParts.length);
-        
-        // Create notification for MQTT events
-        const notification = {
-          id: Date.now().toString(),
-          title: `MQTT: ${topic}`,
-          message: payload || 'MQTT Nachricht erhalten',
-          type: 'event',
-          timestamp: new Date(),
-          read: false,
-          icon: 'radio'
-        };
         
         this.notifications.unshift(notification);
         
