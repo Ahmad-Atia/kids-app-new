@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../config/Config';
 
 class ApiService {
   constructor() {
-    this.baseURL = 'http://192.168.178.63:3000/api';
+    this.baseURL = Config.getApiBaseUrl();
     this.authToken = null;
     console.log('[DEBUG] ApiService initialized', { baseURL: this.baseURL });
   }
