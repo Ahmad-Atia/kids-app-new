@@ -1,0 +1,12 @@
+| **Element**        | **Color**   | **Hex**         | **Usage**                                        |
+| ------------------ | ----------- | --------------- | ------------------------------------------------ |
+| **Primary**        | Blue        | `#2196F3`       | Active chips, buttons, links                     |
+| **Primary Dark**   | Dark Blue   | `#1976D2`       | Pressed state, active chip border                |
+| **Secondary**      | Soft Green  | `#A5D6A7`       | Selected options (matches your `selectedOption`) |
+| **Background**     | White       | `#FFFFFF`       | Default screen background                        |
+| **Card BG**        | Light Gray  | `#F5F5F5`       | Cards, input backgrounds                         |
+| **Border/Outline** | Medium Gray | `#CCCCCC`       | Input/text area borders                          |
+| **Text Primary**   | Dark Gray   | `#333333`       | Main text                                        |
+| **Text Secondary** | Mid Gray    | `#666666`       | Labels, secondary info                           |
+| **Chip Text**      | Light Gray  | `#FFF` / `#333` | Depends on chip state                            |
+| **Danger**         | Soft Red    | `#E57373`       | Errors, alerts (optional)                        |

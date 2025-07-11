@@ -13,6 +13,7 @@ import {
 import { useApp } from '../context/AppContext';
 import AuthService from '../services/AuthService';
 import UserService from '../services/UserService';
+import { styles } from '../styles/AuthScreen.style';
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -204,79 +205,5 @@ const AuthScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-  },
-  form: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  button: {
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  primaryButton: {
-    backgroundColor: '#007AFF',
-  },
-  guestButton: {
-    backgroundColor: '#666',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  switchButton: {
-    padding: 15,
-    alignItems: 'center',
-  },
-  switchText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
-});
 
 export default AuthScreen;
